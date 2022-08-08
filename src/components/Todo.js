@@ -1,7 +1,6 @@
 import { React, useState } from "react";
-import { BsTrashFill } from "react-icons/bs";
 import { AiFillEdit, AiOutlineSend } from "react-icons/ai";
-import { BsToggleOn, BsToggleOff } from "react-icons/bs";
+import { BsToggleOn, BsToggleOff, BsTrashFill } from "react-icons/bs";
 import { GiCancel } from "react-icons/gi";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
