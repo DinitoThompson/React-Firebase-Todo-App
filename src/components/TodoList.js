@@ -1,65 +1,101 @@
-import React, { useState } from "react";
+import { React, useState, useEffect } from "react";
 import Todo from "./Todo";
-import TodoForm from "./TodoForm";
+import { db } from "../firebase";
+import {
+  query,
+  collection,
+  onSnapshot,
+  updateDoc,
+  doc,
+  deleteDoc,
+  addDoc,
+} from "firebase/firestore";
 
 function TodoList() {
   const [todos, setTodos] = useState([]);
+  const [input, setInput] = useState("");
 
-  const addTodo = (todo) => {
-    // Checks to make sure there is an actual text in the field
-    if (!todo.text || /^\s*$/.test(todo.text)) {
+  // Create Todo
+  const createTodo = async (e) => {
+    e.preventDefault(e);
+    if (input === "") {
+      alert("Please enter a Todo !");
       return;
     }
-
-    // If the text exist, create a new todo and passes it. 
-    const newTodos = [todo, ...todos];
-
-    setTodos(newTodos);
-  };
-
-  // Updates the previous todo, to whatever the new Todo is (ID, Value)
-  const updateTodo = (todoId, newValue) => {
-    if (!newValue.text || /^\s*$/.test(newValue.text)) {
-      return;
-    }
-
-    setTodos((prev) =>
-      prev.map((item) => (item.id === todoId ? newValue : item))
-    );
-  };
-
-  // Filters the array of todos and returns an array that doesnt contain
-  // the todo that has the specified ID, then passes that to the setTodos
-  const removeTodo = (id) => {
-    const removeArr = [...todos].filter((todo) => todo.id !== id);
-    setTodos(removeArr);
-  };
-
-  // Crosses out a ToDo from the list
-  const completeTodo = (id) => {
-    let updatedTodos = todos.map((todo) => {
-      if (todo.id === id) {
-        todo.isComplete = !todo.isComplete;
-      }
-      return todo;
+    await addDoc(collection(db, "todos"), {
+      text: input,
+      completed: false,
     });
-    setTodos(updatedTodos);
+    setInput("");
   };
+  // Delete Todo
+  const deleteTodo = async (id) => {
+    await deleteDoc(doc(db, "todos", id));
+  };
+  // Completed Todo
+  const toggleTodo = async (todo) => {
+    await updateDoc(doc(db, "todos", todo.id), {
+      completed: !todo.completed,
+    });
+  };
+
+  const todosTodo = () => {
+    let remainingTodo = 0;
+    // eslint-disable-next-line array-callback-return
+    todos.map((todo) => {
+      if (!todo.completed) remainingTodo = remainingTodo + 1;
+    });
+    return remainingTodo;
+  };
+
+  // Read/Render Todos
+  useEffect(() => {
+    const q = query(collection(db, "todos"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let todosArray = [];
+      querySnapshot.forEach((doc) => {
+        todosArray.push({ ...doc.data(), id: doc.id });
+      });
+      setTodos(todosArray);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
-    <div>
-      <h1>What is the plan for today ? </h1>
-      {/* Calls The ToDo Form and passes the user input */}
-      <TodoForm onSubmit={addTodo} />
+    <div className="bg-blue-300 w-screen h-screen p-6 flex items-center justify-center">
+      <div className="bg-slate-100 max-w-[600px] w-full mx-auto rounded-lg shadow-xl p-4 space-y-4">
+        <h1 className="text-3xl font-bold text-center uppercase text-gray-700 p-2">
+          Firebase ToDo Application
+        </h1>
+        <form onSubmit={createTodo} className="flex justify-between">
+          <input
+            type="text"
+            className="border p-2 w-full text-xl text-center rounded-lg"
+            placeholder="Add Item..."
+            value={input}
+            name="text"
+            onChange={(e) => {
+              setInput(e.target.value);
+            }}
+          />
+          <button className="border p-4 ml-2 bg-blue-500 text-slate-100 rounded-lg w-[150px]">
+            Add Item
+          </button>
+        </form>
 
-      {/* Calls each Todo & each function declared above to the Todo */}
-      <Todo
-        todos={todos}
-        completeTodo={completeTodo}
-        removeTodo={removeTodo}
-        updateTodo={updateTodo}
-      />
+        <Todo todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} />
 
+        {todosTodo() === 0 && todos.length !== 0 ? (
+          <h1 className="text-xl font-medium text-center uppercase text-gray-700 pt-8">
+            Congrats, All Todos are Completed
+          </h1>
+        ) : (
+          <h1 className="text-xl font-medium text-center uppercase text-gray-700 pt-8">
+            You have {todosTodo()} Todos Todo{" "}
+          </h1>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,55 +1,108 @@
-import React, { useState } from "react";
-import { RiCloseCircleLine } from "react-icons/ri";
-import { TiEdit } from "react-icons/ti";
+import { React, useState } from "react";
+import { BsTrashFill } from "react-icons/bs";
+import { AiFillEdit, AiOutlineSend } from "react-icons/ai";
+import { BsToggleOn, BsToggleOff } from "react-icons/bs";
+import { GiCancel } from "react-icons/gi";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
-import TodoForm from "./TodoForm";
+const style = {
+  icon: `cursor-pointer flex items-center w-4 h-4`,
+};
 
-// Accepts these functions as parameters from TodoList so  they can be used.
-function Todo({ todos, completeTodo, removeTodo, updateTodo }) {
-  const [edit, setEdit] = useState({
-    id: null,
-    value: "",
-  });
+function Todo({ todos, toggleTodo, deleteTodo }) {
+  const [editID, setEditID] = useState("");
+  const [updatedTodo, setUpdatedTodo] = useState("");
 
-  // Passes the new Values to the updateTodo Function
-  // Resets setEdit
-  const submitUpdate = (value) => {
-    updateTodo(edit.id, value);
-    setEdit({
-      id: null,
-      value: "",
-    });
-  };
-
-  if (edit.id) {
-    // Changes props in the todo form to prop.edit
-    return <TodoForm edit={edit} onSubmit={submitUpdate} />;
+  function editTodo(id) {
+    setEditID(id);
   }
 
-  // Maps the todos, to the todo passed above.
+  // Update Todo
+  const updateTodo = async (todo) => {
+    await updateDoc(doc(db, "todos", todo.id), {
+      text: updatedTodo,
+    });
+    setEditID("");
+  };
+
   return todos.map((todo, index) => (
     <div
-      className={todo.isComplete ? "todo-row complete" : "todo-row"}
       key={index}
+      className={
+        todo.completed
+          ? "flex justify-between items-center bg-slate-400 p-4 my-2 capitalize transition-all duration-300"
+          : "flex justify-between items-center bg-slate-200 p-4 my-2 capitalize transition-all duration-300"
+      }
     >
-      {/* Calls the completeTodo Function to cross it off the list */}
-      <div key={todo.id} onClick={() => completeTodo(todo.id)}>
-        {todo.text}
+      <div
+        key={todo.id}
+        className={todo.completed ? "line-through ml-2" : "ml-2"}
+      >
+        {todo.id === editID ? (
+          <div className="flex items-center justify-center space-x-4">
+            <input
+              type="text"
+              className="border p-1 w-full text-xl text-center rounded-lg"
+              placeholder={todo.text}
+              value={updatedTodo}
+              name="text"
+              onChange={(e) => {
+                setUpdatedTodo(e.target.value);
+              }}
+            />
+            <AiOutlineSend
+              onClick={() => {
+                updateTodo(todo);
+              }}
+              className={style.icon}
+            />
+          </div>
+        ) : (
+          <p>{todo.text}</p>
+        )}
       </div>
 
-      <div className="icons">
-        {/* Calls the removeTodo Function to remove it from the list */}
-        <RiCloseCircleLine
-          onClick={() => removeTodo(todo.id)}
-          className="delte-icon"
-        />
-
-        {/* Calls the setEdit Function to edit the specific todo */}
-        <TiEdit
-          onClick={() => setEdit({ id: todo.id, value: todo.text })}
-          className="edit-icon"
-        />
-      </div>
+      {todo.id === editID ? (
+        <div className="flex space-x-2">
+          <GiCancel
+            className={style.icon}
+            onClick={() => {
+              setEditID("");
+            }}
+          />
+        </div>
+      ) : (
+        <div className="flex justify-between items-center space-x-2">
+          {todo.completed ? (
+            <BsToggleOff
+              className={style.icon}
+              onClick={() => {
+                toggleTodo(todo);
+              }}
+            />
+          ) : (
+            <BsToggleOn
+              className={style.icon}
+              onClick={() => {
+                toggleTodo(todo);
+              }}
+            />
+          )}
+          <BsTrashFill
+            className={style.icon}
+            onClick={() => {
+              deleteTodo(todo.id);
+            }}
+          />
+          <AiFillEdit
+            className={style.icon}
+            onClick={() => {
+              editTodo(todo.id);
+            }}
+          />
+        </div>
+      )}
     </div>
   ));
 }
