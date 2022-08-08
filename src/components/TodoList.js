@@ -63,15 +63,15 @@ function TodoList() {
   }, []);
 
   return (
-    <div className="bg-blue-300 w-screen h-screen p-6 flex items-center justify-center">
-      <div className="bg-slate-100 max-w-[600px] w-full mx-auto rounded-lg shadow-xl p-4 space-y-4">
-        <h1 className="text-3xl font-bold text-center uppercase text-gray-700 p-2">
+    <div className="w-screen h-screen bg-gradient-to-tr from-blue-900 to-purple-600 p-6 flex items-center justify-center">
+      <div className="bg-[#161a2b] max-w-[600px] w-full mx-auto rounded-lg shadow-xl p-8 space-y-4">
+        <h1 className="text-3xl font-bold text-center uppercase text-white p-2 tracking-widest">
           Firebase ToDo Application
         </h1>
-        <form onSubmit={createTodo} className="flex justify-between">
+        <form onSubmit={createTodo} className="flex space-x-0 rounded">
           <input
             type="text"
-            className="border p-2 w-full text-xl text-center rounded-lg"
+            className="p-2 w-full text-xl text-center focus:outline-none rounded-l-lg"
             placeholder="Add Item..."
             value={input}
             name="text"
@@ -79,7 +79,7 @@ function TodoList() {
               setInput(e.target.value);
             }}
           />
-          <button className="border p-4 ml-2 bg-blue-500 text-slate-100 rounded-lg w-[150px]">
+          <button className="p-4 ml-2 bg-gradient-to-r from-purple-800 to-purple-500 rounded-r-lg hover:scale-105 duration-300 text-slate-100 w-[150px]">
             Add Item
           </button>
         </form>
@@ -87,11 +87,11 @@ function TodoList() {
         <Todo todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} />
 
         {todosTodo() === 0 && todos.length !== 0 ? (
-          <h1 className="text-xl font-medium text-center uppercase text-gray-700 pt-8">
+          <h1 className="text-xl tracking-widest font-medium text-center uppercase text-gray-400 pt-8">
             Congrats, All Todos are Completed
           </h1>
         ) : (
-          <h1 className="text-xl font-medium text-center uppercase text-gray-700 pt-8">
+          <h1 className="text-xl tracking-widest font-medium text-center uppercase text-gray-400 pt-8">
             You have {todosTodo()} Todos Todo{" "}
           </h1>
         )}

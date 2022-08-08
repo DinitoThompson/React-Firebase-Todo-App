@@ -14,16 +14,22 @@ function Todo({ todos, toggleTodo, deleteTodo }) {
   const [editID, setEditID] = useState("");
   const [updatedTodo, setUpdatedTodo] = useState("");
 
-  function editTodo(id) {
-    setEditID(id);
+  function editTodo(todo) {
+    setUpdatedTodo("");
+    setEditID(todo.id);
   }
 
   // Update Todo
   const updateTodo = async (todo) => {
+    if (updatedTodo === "") {
+      alert("Enter A Valid Todo");
+      return;
+    }
     await updateDoc(doc(db, "todos", todo.id), {
       text: updatedTodo,
     });
     setEditID("");
+    setUpdatedTodo("");
   };
 
   return todos.map((todo, index) => (
@@ -31,8 +37,8 @@ function Todo({ todos, toggleTodo, deleteTodo }) {
       key={index}
       className={
         todo.completed
-          ? "flex justify-between items-center bg-slate-400 p-4 my-2 capitalize transition-all duration-300"
-          : "flex justify-between items-center bg-slate-200 p-4 my-2 capitalize transition-all duration-300"
+          ? "flex justify-between items-center bg-slate-300 text-white opacity-70 font-medium p-4 my-2 text-xl capitalize transition-all duration-300"
+          : "flex justify-between items-center bg-gradient-to-r from-blue-800 to-blue-700 text-white font-medium p-4 my-2 text-xl capitalize transition-all duration-300"
       }
     >
       <div
@@ -43,7 +49,7 @@ function Todo({ todos, toggleTodo, deleteTodo }) {
           <div className="flex items-center justify-center space-x-4">
             <input
               type="text"
-              className="border p-1 w-full text-xl text-center rounded-lg"
+              className="border p-1 w-full text-xl text-center focus:outline-none text-black rounded-lg tracking-widest"
               placeholder={todo.text}
               value={updatedTodo}
               name="text"
@@ -55,7 +61,7 @@ function Todo({ todos, toggleTodo, deleteTodo }) {
               onClick={() => {
                 updateTodo(todo);
               }}
-              className={style.icon}
+              className={`w-6 h-6 ${style.icon}`}
             />
           </div>
         ) : (
@@ -66,7 +72,7 @@ function Todo({ todos, toggleTodo, deleteTodo }) {
       {todo.id === editID ? (
         <div className="flex space-x-2">
           <GiCancel
-            className={style.icon}
+            className={`w-5 h-5 ${style.icon}`}
             onClick={() => {
               setEditID("");
             }}
@@ -76,29 +82,29 @@ function Todo({ todos, toggleTodo, deleteTodo }) {
         <div className="flex justify-between items-center space-x-2">
           {todo.completed ? (
             <BsToggleOff
-              className={style.icon}
+              className={`w-5 h-5 ${style.icon}`}
               onClick={() => {
                 toggleTodo(todo);
               }}
             />
           ) : (
             <BsToggleOn
-              className={style.icon}
+              className={`w-5 h-5 ${style.icon}`}
               onClick={() => {
                 toggleTodo(todo);
               }}
             />
           )}
           <BsTrashFill
-            className={style.icon}
+            className={`w-5 h-5 ${style.icon}`}
             onClick={() => {
               deleteTodo(todo.id);
             }}
           />
           <AiFillEdit
-            className={style.icon}
+            className={`w-5 h-5 ${style.icon}`}
             onClick={() => {
-              editTodo(todo.id);
+              editTodo(todo);
             }}
           />
         </div>
