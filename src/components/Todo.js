@@ -5,6 +5,7 @@ import { GiCancel } from "react-icons/gi";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
+// Custom Styles
 const style = {
   icon: `cursor-pointer flex items-center w-4 h-4`,
 };
