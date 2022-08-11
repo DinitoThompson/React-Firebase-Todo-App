@@ -1,3 +1,8 @@
+# FIREBASE TODO APPLICATION 
+
+This is an update to the React Editable Todo Application.
+This application utilizes all CRUD operations on a Firebase/Firestore database.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
